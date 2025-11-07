@@ -14,6 +14,24 @@ import { checkPermission } from "../middleware/permission.js";
 
 const router = express.Router();
 
+// ====== NEW: GET CURRENT USER (/api/users/me) ======
+router.get("/me", protect, async (req, res) => {
+  try {
+    res.json({
+      user: {
+        id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+        role: req.user.role,
+        permissions: req.user.permissions || [],
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
 // Admin-only: Create user
 router.post(
   "/",
