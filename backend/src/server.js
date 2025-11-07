@@ -12,6 +12,7 @@ import projectRoutes from "./routes/projects.js";
 import taskRoutes from "./routes/tasks.js";
 import clientRoutes from "./routes/clientRoutes.js";
 import activityRoutes from "./routes/activity.js";
+// import allTaskRoutes from "./routes/alltask.js";
 
 dotenv.config();
 const app = express();
@@ -34,6 +35,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/clients", clientRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/projects/:projectId/tasks", taskRoutes);
+//get all tasks
+// app.use("/api/tasks", allTaskRoutes);
 // ... other routes
 
 app.use(errorHandler);

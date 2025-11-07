@@ -14,6 +14,7 @@ export default function ActivityLog() {
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">Activity Log</h1>
+      <p>comming soon...</p>
       <div className="space-y-4">
         {activities?.map((act) => (
           <div

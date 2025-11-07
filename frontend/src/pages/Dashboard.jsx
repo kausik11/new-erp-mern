@@ -15,15 +15,14 @@ export default function Dashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
-      const [clients, projects, tasks] = await Promise.all([
+      const [clients, projects] = await Promise.all([
         api.get("/clients"),
         api.get("/projects"),
-        api.get("/projects"), // we'll count tasks later if needed
       ]);
       return {
-        clients: clients.data.length,
-        projects: projects.data.length,
-        tasks: 42, // replace with real task count if you add endpoint
+        clients: clients.data.data.length,
+        projects: projects.data.data.length,
+        tasks: 42,
       };
     },
   });
@@ -37,7 +36,7 @@ export default function Dashboard() {
   // Recent Projects
   const { data: recentProjects = [], isLoading: projLoading } = useQuery({
     queryKey: ["recent-projects"],
-    queryName: () => api.get("/projects?limit=5&sort=-createdAt").then(res => res.data),
+    queryFn: () => api.get("/projects?limit=5&sort=-createdAt").then(res => res.data),
   });
 
   const projectColumns = [
@@ -49,21 +48,174 @@ export default function Dashboard() {
       headerName: "",
       width: 100,
       cellRenderer: (params) => (
-        <Link to={`/projects/${params.data._id}`} className="text-blue-600 text-sm">
+        <Link
+          to={`/projects/${params.data._id}`}
+          style={{
+            color: "#2563eb",
+            fontSize: "0.875rem",
+            textDecoration: "none",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#1d4ed8")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#2563eb")}
+        >
           View →
         </Link>
       ),
     },
   ];
 
+  // Inline styles object
+  const isDark = document.documentElement.classList.contains("dark");
+
+  const styles = {
+    container: {
+      padding: "1.5rem",
+      maxWidth: "80rem",
+      margin: "0 auto",
+    },
+    welcomeSection: {
+      marginBottom: "2rem",
+    },
+    heading: {
+      fontSize: "2.5rem",
+      fontWeight: "700",
+      marginBottom: "0.5rem",
+    },
+    subtext: {
+      color: isDark ? "#9ca3af" : "#4b5563",
+      fontSize: "1rem",
+    },
+    statsGrid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(1, minmax(0, 1fr))",
+      gap: "1.5rem",
+      marginBottom: "2.5rem",
+      "@media (min-width: 768px)": { gridTemplateColumns: "repeat(2, minmax(0, 1fr))" },
+      "@media (min-width: 1024px)": { gridTemplateColumns: "repeat(4, minmax(0, 1fr))" },
+    },
+    card: {
+      backgroundColor: isDark ? "#1f2937" : "#ffffff",
+      padding: "1.5rem",
+      borderRadius: "0.75rem",
+      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+    },
+    cardContent: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    cardText: {
+      color: "#6b7280",
+      fontSize: "0.875rem",
+    },
+    cardNumber: {
+      fontSize: "1.875rem",
+      fontWeight: "700",
+      marginTop: "0.5rem",
+    },
+    iconCircle: (colorLight, colorDark) => ({
+      backgroundColor: isDark ? colorDark : colorLight,
+      padding: "1rem",
+      borderRadius: "9999px",
+      fontSize: "2rem",
+    }),
+    mainGrid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(1, minmax(0, 1fr))",
+      gap: "2rem",
+      "@media (min-width: 1024px)": { gridTemplateColumns: "repeat(2, minmax(0, 1fr))" },
+    },
+    section: {
+      backgroundColor: isDark ? "#1f2937" : "#ffffff",
+      borderRadius: "0.75rem",
+      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+      padding: "1.5rem",
+    },
+    sectionHeader: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: "1rem",
+    },
+    sectionTitle: {
+      fontSize: "1.5rem",
+      fontWeight: "700",
+    },
+    link: {
+      color: "#2563eb",
+      textDecoration: "none",
+      fontSize: "1rem",
+    },
+    linkHover: {
+      textDecoration: "underline",
+    },
+    agGridContainer: {
+      height: 300,
+    },
+    activityItem: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      padding: "0.75rem",
+      backgroundColor: isDark ? "#374151" : "#f3f4f6",
+      borderRadius: "0.5rem",
+    },
+    activityText: {
+      fontWeight: "500",
+    },
+    activityAction: {
+      color: "#4b5563",
+    },
+    activityTarget: {
+      fontSize: "0.875rem",
+      color: "#2563eb",
+    },
+    activityTime: {
+      fontSize: "0.75rem",
+      color: "#6b7280",
+    },
+    quickActions: {
+      marginTop: "2.5rem",
+      display: "flex",
+      gap: "1rem",
+      flexWrap: "wrap",
+    },
+    btnPrimary: {
+      backgroundColor: "#2563eb",
+      color: "#ffffff",
+      padding: "0.75rem 1.5rem",
+      borderRadius: "0.5rem",
+      fontWeight: "600",
+      textDecoration: "none",
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "0.5rem",
+      transition: "background-color 0.2s",
+    },
+    btnGreen: {
+      backgroundColor: "#16a34a",
+      color: "#ffffff",
+      padding: "0.75rem 1.5rem",
+      borderRadius: "0.5rem",
+      textDecoration: "none",
+    },
+    btnPurple: {
+      backgroundColor: "#9333ea",
+      color: "#ffffff",
+      padding: "0.75rem 1.5rem",
+      borderRadius: "0.5rem",
+      textDecoration: "none",
+    },
+  };
+
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div style={styles.container}>
       {/* Welcome */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">
+      <div style={styles.welcomeSection}>
+        <h1 style={styles.heading}>
           Welcome back, {user?.name || "User"}! 👋
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p style={styles.subtext}>
           {user?.role === "Admin" && "Manage everything with full control."}
           {user?.role === "Manager" && "Oversee your teams and projects."}
           {user?.role === "Employee" && "Stay updated on your tasks."}
@@ -71,70 +223,69 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-          <div className="flex items-center justify-between">
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: window.innerWidth < 768 ? "repeat(1, minmax(0, 1fr))" :
+                                 window.innerWidth < 1024 ? "repeat(2, minmax(0, 1fr))" :
+                                                            "repeat(4, minmax(0, 1fr))",
+        gap: "1.5rem",
+        marginBottom: "2.5rem",
+      }}>
+        {/* Clients */}
+        <div style={styles.card}>
+          <div style={styles.cardContent}>
             <div>
-              <p className="text-gray-500 text-sm">Total Clients</p>
-              <p className="text-3xl font-bold mt-2">
+              <p style={styles.cardText}>Total Clients</p>
+              <p style={styles.cardNumber}>
                 {statsLoading ? "..." : stats?.clients || 0}
               </p>
             </div>
-            <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-full">
-              <span className="text-2xl">👥</span>
-            </div>
+            <div style={styles.iconCircle("#dbeafe", "#1e40af")}>👥</div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-          <div className="flex items-center justify-between">
+        {/* Projects */}
+        <div style={styles.card}>
+          <div style={styles.cardContent}>
             <div>
-              <p className="text-gray-500 text-sm">Active Projects</p>
-              <p className="text-3xl font-bold mt-2">
+              <p style={styles.cardText}>Active Projects</p>
+              <p style={styles.cardNumber}>
                 {statsLoading ? "..." : stats?.projects || 0}
               </p>
             </div>
-            <div className="bg-green-100 dark:bg-green-900 p-4 rounded-full">
-              <span className="text-2xl">📁</span>
-            </div>
+            <div style={styles.iconCircle("#d1fae5", "#166534")}>📁</div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-          <div className="flex items-center justify-between">
+        {/* Team Members */}
+        <div style={styles.card}>
+          <div style={styles.cardContent}>
             <div>
-              <p className="text-gray-500 text-sm">Total Tasks</p>
-              <p className="text-3xl font-bold mt-2">
-                {statsLoading ? "..." : stats?.tasks || 0}
-              </p>
-            </div>
-            <div className="bg-purple-100 dark:bg-purple-900 p-4 rounded-full">
-              <span className="text-2xl">✓</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-500 text-sm">Team Members</p>
-              <p className="text-3xl font-bold mt-2">
+              <p style={styles.cardText}>Team Members</p>
+              <p style={styles.cardNumber}>
                 {statsLoading ? "..." : "12"}
               </p>
             </div>
-            <div className="bg-orange-100 dark:bg-orange-900 p-4 rounded-full">
-              <span className="text-2xl">👥</span>
-            </div>
+            <div style={styles.iconCircle("#fed7aa", "#ea580c")}>👥</div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: window.innerWidth < 1024 ? "repeat(1, minmax(0, 1fr))" : "repeat(2, minmax(0, 1fr))",
+        gap: "2rem",
+      }}>
         {/* Recent Projects */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">Recent Projects</h2>
-            <Link to="/projects" className="text-blue-600 hover:underline">
+        <div style={styles.section}>
+          <div style={styles.sectionHeader}>
+            <h2 style={styles.sectionTitle}>Recent Projects</h2>
+            <Link
+              to="/projects"
+              style={styles.link}
+              onMouseEnter={(e) => e.currentTarget.style.textDecoration = "underline"}
+              onMouseLeave={(e) => e.currentTarget.style.textDecoration = "none"}
+            >
               View all →
             </Link>
           </div>
@@ -142,9 +293,9 @@ export default function Dashboard() {
           {projLoading ? (
             <p>Loading projects...</p>
           ) : recentProjects.length === 0 ? (
-            <p className="text-gray-500">No projects yet. Create one!</p>
+            <p style={{ color: "#6b7280" }}>No projects yet. Create one!</p>
           ) : (
-            <div className="ag-theme-alpine dark:ag-theme-alpine-dark" style={{ height: 300 }}>
+            <div className={isDark ? "ag-theme-alpine-dark" : "ag-theme-alpine"} style={styles.agGridContainer}>
               <AgGridReact
                 rowData={recentProjects}
                 columnDefs={projectColumns}
@@ -155,10 +306,15 @@ export default function Dashboard() {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">Recent Activity</h2>
-            <Link to="/activity" className="text-blue-600 hover:underline">
+        <div style={styles.section}>
+          <div style={styles.sectionHeader}>
+            <h2 style={styles.sectionTitle}>Recent Activity</h2>
+            <Link
+              to="/activity"
+              style={styles.link}
+              onMouseEnter={(e) => e.currentTarget.style.textDecoration = "underline"}
+              onMouseLeave={(e) => e.currentTarget.style.textDecoration = "none"}
+            >
               View all →
             </Link>
           </div>
@@ -166,22 +322,19 @@ export default function Dashboard() {
           {actLoading ? (
             <p>Loading activity...</p>
           ) : activities.length === 0 ? (
-            <p className="text-gray-500">No recent activity.</p>
+            <p style={{ color: "#6b7280" }}>No recent activity.</p>
           ) : (
-            <div className="space-y-3">
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
               {activities.map((act) => (
-                <div
-                  key={act._id}
-                  className="flex justify-between items-start p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                >
+                <div key={act._id} style={styles.activityItem}>
                   <div>
-                    <p className="font-medium">
+                    <p style={styles.activityText}>
                       {act.user?.name || "Someone"}{" "}
-                      <span className="text-gray-600">{act.action}</span>
+                      <span style={styles.activityAction}>{act.action}</span>
                     </p>
-                    <p className="text-sm text-blue-600">{act.target}</p>
+                    <p style={styles.activityTarget}>{act.target}</p>
                   </div>
-                  <span className="text-xs text-gray-500">
+                  <span style={styles.activityTime}>
                     {format(new Date(act.createdAt), "MMM dd, HH:mm")}
                   </span>
                 </div>
@@ -193,22 +346,28 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       {(user?.role === "Admin" || user?.role === "Manager") && (
-        <div className="mt-10 flex gap-4 flex-wrap">
+        <div style={styles.quickActions}>
           <Link
             to="/projects/create"
-            className="btn-primary flex items-center gap-2"
+            style={styles.btnPrimary}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#1d4ed8")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#2563eb")}
           >
             + New Project
           </Link>
           <Link
             to="/users/create"
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg"
+            style={styles.btnGreen}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#15803d")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#16a34a")}
           >
             + Add User
           </Link>
           <Link
             to="/clients"
-            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg"
+            style={styles.btnPurple}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#7c3aed")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#9333ea")}
           >
             Manage Clients
           </Link>

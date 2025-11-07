@@ -39,12 +39,12 @@ export const createProject = async (req, res) => {
 };
 
 export const getProjects = async (req, res) => {
-  const { page = 1, limit = 10, search = "", client, status } = req.query;
+  const { page = 1, limit = 10, search = "", status } = req.query;
 
   const query = {
     ...(search && { name: { $regex: search, $options: "i" } }),
     // ...(client && { client }),
-    ...(client && { "client.id": client }), 
+    // ...(client && { "client.id": client }), 
     ...(status && { status }),
   };
 

@@ -1,12 +1,163 @@
+// // src/pages/projects/CreateProject.jsx
+// import { useForm } from "react-hook-form";
+// import { useMutation, useQueryClient } from "@tanstack/react-query";
+// import api from "../../lib/api";
+// import { useNavigate } from "react-router-dom";
+// import { useAuth } from "../../context/AuthContext";
+
+// export default function CreateProject() {
+//   const { register, handleSubmit, formState: { errors } } = useForm();
+//   const queryClient = useQueryClient();
+//   const navigate = useNavigate();
+//   const { user } = useAuth();
+
+//   const mutation = useMutation({
+//     mutationFn: (data) => api.post("/projects", data),
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ["projects"] });
+//       navigate("/projects");
+//     },
+//     onError: (error) => {
+//       alert(error.response?.data?.message || "Failed to create project");
+//     },
+//   });
+
+//   const onSubmit = (data) => {
+//     // FIX: Map frontend values to exact backend enum strings
+//     const formattedData = {
+//       ...data,
+//       client: data.client || null,
+//       manager: user?._id || null, // optional: auto-assign current user
+//       status:
+//         data.status === "planning" ? "Planning" :
+//         data.status === "in-progress" ? "In Progress" :
+//         data.status === "completed" ? "Completed" :
+//         data.status === "on-hold" ? "On Hold" :
+//         "Planning",
+//     };
+
+//     console.log("Creating project with:", formattedData);
+//     mutation.mutate(formattedData);
+//   };
+
+//   return (
+//     <div className="max-w-3xl mx-auto p-8">
+//       <div className="mb-8">
+//         <h1 className="text-3xl font-bold">Create New Project</h1>
+//         <p className="text-gray-600 dark:text-gray-400 mt-2">
+//           Fill in the details below to start a new project.
+//         </p>
+//         <p>As for now manually copy client_id from backend(will implement soon...) </p>
+//       </div>
+
+//       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
+//         {/* Project Name */}
+//         <div>
+//           <label className="block text-sm font-medium mb-2">
+//             Project Name <span className="text-red-500">*</span>
+//           </label>
+//           <input
+//             {...register("name", { required: "Project name is required" })}
+//             placeholder="e.g. New ERP System"
+//             className="input w-full"
+//           />
+//           {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
+//         </div>
+
+//         {/* Client ID */}
+//         <div>
+//           <label className="block text-sm font-medium mb-2">
+//             Client ID <span className="text-red-500">*</span>
+//           </label>
+//           <input
+//             {...register("client", { required: "Client ID is required" })}
+//             placeholder="e.g. 690cdcfa798575b71f7a1c0e"
+//             className="input w-full font-mono text-sm"
+//           />
+//           {errors.client && <p className="text-red-500 text-sm mt-1">{errors.client.message}</p>}
+//         </div>
+
+//         {/* Description */}
+//         <div>
+//           <label className="block text-sm font-medium mb-2">Description</label>
+//           <textarea
+//             {...register("description")}
+//             rows="4"
+//             placeholder="Brief overview of the project..."
+//             className="input w-full resize-none"
+//           />
+//         </div>
+
+//         {/* Status */}
+//         <div>
+//           <label className="block text-sm font-medium mb-2">Status</label>
+//           <select
+//             {...register("status")}
+//             className="input w-full"
+//             defaultValue="planning"
+//           >
+//             <option value="planning">Planning</option>
+//             <option value="in-progress">In Progress</option>
+//             <option value="completed">Completed</option>
+//             <option value="on-hold">On Hold</option>
+//           </select>
+//         </div>
+
+//         {/* Start & End Date */}
+//         <div className="grid grid-cols-2 gap-4">
+//           <div>
+//             <label className="block text-sm font-medium mb-2">Start Date</label>
+//             <input
+//               {...register("startDate")}
+//               type="date"
+//               className="input w-full"
+//               min={new Date().toISOString().split("T")[0]}
+//             />
+//           </div>
+//           <div>
+//             <label className="block text-sm font-medium mb-2">End Date</label>
+//             <input
+//               {...register("endDate")}
+//               type="date"
+//               className="input w-full"
+//             />
+//           </div>
+//         </div>
+
+//         {/* Submit */}
+//         <div className="flex gap-4 pt-6 border-t dark:border-gray-700">
+//           <button
+//             type="submit"
+//             disabled={mutation.isPending}
+//             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition disabled:opacity-70"
+//           >
+//             {mutation.isPending ? "Creating..." : "Create Project"}
+//           </button>
+//           <button
+//             type="button"
+//             onClick={() => navigate("/projects")}
+//             className="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-medium transition"
+//           >
+//             Cancel
+//           </button>
+//         </div>
+//       </form>
+//     </div>
+//   );
+// }
+
+// src/pages/projects/CreateProject.jsx
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../lib/api";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 export default function CreateProject() {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, formState: { errors } } = useForm();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const mutation = useMutation({
     mutationFn: (data) => api.post("/projects", data),
@@ -14,27 +165,195 @@ export default function CreateProject() {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       navigate("/projects");
     },
+    onError: (error) => {
+      alert(error.response?.data?.message || "Failed to create project");
+    },
   });
 
   const onSubmit = (data) => {
-    mutation.mutate(data);
+    const formattedData = {
+      ...data,
+      client: data.client || null,
+      manager: user?._id || null,
+      status:
+        data.status === "planning" ? "Planning" :
+        data.status === "in-progress" ? "In Progress" :
+        data.status === "completed" ? "Completed" :
+        data.status === "on-hold" ? "On Hold" :
+        "Planning",
+    };
+
+    console.log("Creating project with:", formattedData);
+    mutation.mutate(formattedData);
+  };
+
+  const containerStyle = {
+    maxWidth: "768px",
+    margin: "0 auto",
+    padding: "2rem",
+  };
+
+  const cardStyle = {
+    backgroundColor: "#fff",
+    padding: "2rem",
+    borderRadius: "12px",
+    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+  };
+
+  const labelStyle = {
+    display: "block",
+    fontSize: "14px",
+    fontWeight: "600",
+    marginBottom: "8px",
+  };
+
+  const inputStyle = {
+    width: "100%",
+    padding: "10px",
+    border: "1px solid #ccc",
+    borderRadius: "6px",
+    fontSize: "14px",
+  };
+
+  const buttonPrimary = {
+    backgroundColor: "#2563eb",
+    color: "white",
+    padding: "12px 24px",
+    borderRadius: "8px",
+    border: "none",
+    fontWeight: "500",
+    cursor: "pointer",
+    transition: "background-color 0.3s",
+  };
+
+  const buttonSecondary = {
+    backgroundColor: "#6b7280",
+    color: "white",
+    padding: "12px 24px",
+    borderRadius: "8px",
+    border: "none",
+    fontWeight: "500",
+    cursor: "pointer",
+    transition: "background-color 0.3s",
+  };
+
+  const errorStyle = {
+    color: "red",
+    fontSize: "13px",
+    marginTop: "4px",
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">Create New Project</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <input {...register("name", { required: true })} placeholder="Project Name" className="input" />
-        <input {...register("client")} placeholder="Client ID" className="input" />
-        <textarea {...register("description")} placeholder="Description" className="input h-32" />
-        <select {...register("status")} className="input">
-          <option value="planning">Planning</option>
-          <option value="in-progress">In Progress</option>
-          <option value="completed">Completed</option>
-        </select>
-        <button type="submit" className="btn-primary">
-          {mutation.isPending ? "Creating..." : "Create Project"}
-        </button>
+    <div style={containerStyle}>
+      <div style={{ marginBottom: "2rem" }}>
+        <h1 style={{ fontSize: "28px", fontWeight: "700" }}>Create New Project</h1>
+        <p style={{ color: "#555", marginTop: "8px" }}>
+          Fill in the details below to start a new project.
+        </p>
+        <p style={{ color: "red", marginTop: "4px" }}>
+          For now, manually copy this Client ID: "ACME0012" (will implement soon...)
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} style={cardStyle}>
+        {/* Project Name */}
+        <div style={{ marginBottom: "20px" }}>
+          <label style={labelStyle}>
+            Project Name <span style={{ color: "red" }}>*</span>
+          </label>
+          <input
+            {...register("name", { required: "Project name is required" })}
+            placeholder="e.g. New ERP System"
+            style={inputStyle}
+          />
+          {errors.name && <p style={errorStyle}>{errors.name.message}</p>}
+        </div>
+
+        {/* Client ID */}
+        <div style={{ marginBottom: "20px" }}>
+          <label style={labelStyle}>
+            Client ID <span style={{ color: "red" }}>*</span>
+          </label>
+          <input
+            {...register("client", { required: "Client ID is required" })}
+            placeholder="e.g. 690cdcfa798575b71f7a1c0e"
+            style={{ ...inputStyle, fontFamily: "monospace", fontSize: "13px" }}
+          />
+          {errors.client && <p style={errorStyle}>{errors.client.message}</p>}
+        </div>
+
+        {/* Description */}
+        <div style={{ marginBottom: "20px" }}>
+          <label style={labelStyle}>Description</label>
+          <textarea
+            {...register("description")}
+            rows="4"
+            placeholder="Brief overview of the project..."
+            style={{ ...inputStyle, resize: "none" }}
+          />
+        </div>
+
+        {/* Status */}
+        <div style={{ marginBottom: "20px" }}>
+          <label style={labelStyle}>Status</label>
+          <select {...register("status")} defaultValue="planning" style={inputStyle}>
+            <option value="planning">Planning</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="on-hold">On Hold</option>
+          </select>
+        </div>
+
+        {/* Start & End Date */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <div>
+            <label style={labelStyle}>Start Date</label>
+            <input
+              {...register("startDate")}
+              type="date"
+              style={inputStyle}
+              min={new Date().toISOString().split("T")[0]}
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>End Date</label>
+            <input {...register("endDate")} type="date" style={inputStyle} />
+          </div>
+        </div>
+
+        {/* Submit Buttons */}
+        <div
+          style={{
+            display: "flex",
+            gap: "16px",
+            paddingTop: "24px",
+            marginTop: "20px",
+            borderTop: "1px solid #ddd",
+          }}
+        >
+          <button
+            type="submit"
+            disabled={mutation.isPending}
+            style={{
+              ...buttonPrimary,
+              opacity: mutation.isPending ? 0.7 : 1,
+            }}
+            onMouseOver={(e) => (e.target.style.backgroundColor = "#1d4ed8")}
+            onMouseOut={(e) => (e.target.style.backgroundColor = "#2563eb")}
+          >
+            {mutation.isPending ? "Creating..." : "Create Project"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate("/projects")}
+            style={buttonSecondary}
+            onMouseOver={(e) => (e.target.style.backgroundColor = "#4b5563")}
+            onMouseOut={(e) => (e.target.style.backgroundColor = "#6b7280")}
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );
