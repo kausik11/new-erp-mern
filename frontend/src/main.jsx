@@ -14,7 +14,7 @@ const queryClient = new QueryClient()
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>                  {/* ← Wrap App with AuthProvider */}
+      <AuthProvider>                  
         <App />
       </AuthProvider>
     </QueryClientProvider>
