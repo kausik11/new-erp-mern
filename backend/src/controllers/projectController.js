@@ -48,7 +48,7 @@ export const getProjects = async (req, res) => {
     ...(status && { status }),
   };
 
-  const result = await paginate(Project, query, +page, +limit, "client manager");
+  const result = await paginate(Project, query, +page, +limit);
 
   res.json({
     success: true,
