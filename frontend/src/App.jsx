@@ -178,7 +178,7 @@ function App() {
                   >
                     Logout
                   </button>
-                  <ThemeToggle />
+                  {/* <ThemeToggle /> */}
                 </div>
               </div>
             </div>
