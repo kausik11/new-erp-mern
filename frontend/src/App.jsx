@@ -216,7 +216,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/activity" element={<ProtectedRoute><ActivityLog /></ProtectedRoute>} />
+          <Route path="/activity" element={<ActivityLog />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

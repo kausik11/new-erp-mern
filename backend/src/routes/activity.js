@@ -1,13 +1,13 @@
 // src/routes/activity.js
 import express from "express";
 import { protect } from "../middleware/auth.js";
-import Activity from "../models/Activity.js";
+import ActivityLog from "../models/ActivityLog.js";
 
 const router = express.Router();
 
 router.get("/", protect, async (req, res) => {
   try {
-    const activities = await Activity.find()
+    const activities = await ActivityLog.find()
     
 
     console.log("Raw activities from DB:", activities); // ← DEBUG: Check terminal!
