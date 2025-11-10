@@ -103,7 +103,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-const fetchUsers = () => api.get("/users").then((res) => res.data);
+const fetchUsers = () => api.get("/users").then((res) => res.data.data);
 
 export default function UserList() {
   const { user: currentUser } = useAuth();
@@ -113,7 +113,7 @@ export default function UserList() {
     queryKey: ["users"],
     queryFn: fetchUsers,
   });
-
+ console.log("users",users);
   const deleteMutation = useMutation({
     mutationFn: (id) => api.delete(`/users/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
