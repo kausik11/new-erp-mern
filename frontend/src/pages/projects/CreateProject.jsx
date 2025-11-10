@@ -126,8 +126,9 @@ export default function CreateProject() {
             Client ID <span style={{ color: "red" }}>*</span>
           </label>
           <input
-            {...register("client", { required: "Client ID is required" })}
-            placeholder="e.g. 690cdcfa798575b71f7a1c0e"
+            {...register("client")}
+            value="ACME0012"
+            readOnly
             style={{ ...inputStyle, fontFamily: "monospace", fontSize: "13px" }}
           />
           {errors.client && <p style={errorStyle}>{errors.client.message}</p>}
